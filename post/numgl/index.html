@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+
+  <html lang="">
+
+<head>
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  	<meta property="og:title" content=" Introducing NumGL &middot;  Jon Gomez Blog" />
+  	<meta property="og:site_name" content="Jon Gomez Blog" />
+  	<meta property="og:url" content="https://jongomez.github.io/post/numgl/" />
+
+    
+  	<meta property="og:type" content="article" />
+
+    <meta property="og:article:published_time" content="2015-01-21T12:08:47&#43;01:00" />
+
+    
+    <meta property="og:article:tag" content="WebGL" />
+    
+    <meta property="og:article:tag" content="JavaScript" />
+    
+    
+
+  <title>
+     Introducing NumGL &middot;  Jon Gomez Blog
+  </title>
+
+    <meta name="description" content="Blog" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+
+
+    <link rel="stylesheet" type="text/css" href="https://jongomez.github.io/css/screen.css" />
+    <link rel="stylesheet" type="text/css" href="https://jongomez.github.io/css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400|Inconsolata" />
+
+
+    
+      
+          <link href="https://jongomez.github.io/index.xml" rel="alternate" type="application/rss+xml" title="Jon Gomez Blog" />
+      
+      
+    
+    <meta name="generator" content="Hugo 0.17" />
+
+    <link rel="canonical" href="https://jongomez.github.io/post/numgl/" />
+
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-83420808-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+    
+
+    
+</head>
+<body class="nav-closed">
+
+  <div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" id="nav-close" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+        
+        
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://jongomez.github.io/">Blog</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://github.com/jongomez">Github</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://jongomez.github.io/about/">About</a>
+            </li>
+        
+    </ul>
+</div>
+<span class="nav-cover"></span>
+
+
+ <div class="site-wrapper">
+
+
+
+
+  
+    
+      <header class="main-header post-head" style="background-image: url(https://jongomez.github.io/media/numgl/3D.jpg)">
+    
+  
+  <nav class="main-nav overlay clearfix">
+
+
+  
+          
+          <div id="menu-icon-wrapper" class="menu-icon-wrapper">
+              
+              <svg width="100px" height="100px">
+                  <path stroke="white" id="pathA" d="M 30 40 L 70 40 C 90 40 90 75 60 85 A 40 40 0 0 1 20 20 L 80 80"/>
+                  <path stroke="white" id="pathB" d="M 30 50 L 70 50"/>
+                  <path stroke="white" id="pathC" d="M 70 60 L 30 60 C 10 60 10 20 40 15 A 40 38 0 1 1 20 80 L 80 20"/>
+              </svg>
+              
+              <button id="menu-icon-trigger" class="menu-icon-trigger"></button>
+          </div>
+  
+  </nav>
+
+
+ <div class="vertical">
+        <div class="main-header-content inner">
+
+
+  <h1 class="page-title">Introducing NumGL</h1>
+  <h2 class="page-description">A WebGL library for fast image/video processing</h2>
+
+
+
+
+      </div>
+  </div>
+
+
+    <a id="sauss" style="color: " href="">
+      
+    </a>
+
+</header>
+
+
+
+<main class="content" role="main">
+
+
+  <article class="post post">
+
+    <header class="post-header">
+
+        <h1 class="post-title">Introducing NumGL</h1>
+
+
+        <small></small>
+
+        <section class="post-meta">
+        
+          <time class="post-date" datetime="2015-01-21T12:08:47&#43;01:00">
+            Jan 21, 2015
+          </time>
+        
+         
+          <span class="post-tag small"><a href="https://jongomez.github.io/tags/webgl/">#WebGL</a></span>
+         
+          <span class="post-tag small"><a href="https://jongomez.github.io/tags/javascript/">#JavaScript</a></span>
+         
+        </section>
+    </header>
+
+    <section class="post-content">
+      
+
+<br/>
+
+
+<p>(2 minute read)</p>
+
+<p><strong>If you&rsquo;re looking for general-purpose computing with WebGL (specifically BLAS stuff) check out the amazing <a href="https://github.com/waylonflinn/weblas">weblas</a> library. This post is a bit old, and at the time using WebGL for general-purpose computing seemed like a painful dirty hack.</strong></p>
+
+<p>WebGL for general-purpose computing sounded like a good idea at first.
+Simply send data to the GPU as textures and perform the calculations there.
+Browsers can handle it, and very few people seemed to be doing this.</p>
+
+<p>Turns out people weren&rsquo;t doing this for several reasons, the main one being: weak support for float texture values. There&rsquo;s an extension called <em>oes_texture_float</em>, which helps a lot, <a href="http://stackoverflow.com/questions/17476632/webgl-extension-support-across-browsers">but it&rsquo;s still a bit clumsy.</a></p>
+
+<p>So if you&rsquo;re not using <em>oes_texture_float</em> and want to to send float data to the shaders, the data has to be RGBA-encoded into a texture (on the JavaScript side), sent to the WebGL side and once there, decoded back into floats. Ouch.
+Not to mention reading back the float results on the JS side, <a href="http://stackoverflow.com/questions/17981163/webgl-read-pixels-from-floating-point-render-target">which can also be painful.</a></p>
+
+<p><a href="https://lab.concord.org/experiments/webgl-gpgpu/webgl.html">Here&rsquo;s an overview of 2 methods that do all of the above.</a> Some issues are: performance bottlenecks, additional JavaScript and GLSL code, and errors associated with the float / RGBA conversions.</p>
+
+<p>What about image processing and computer vision? The images / video frames can be processed by WebGL as regular textures, no need for float / RGBA conversions. It seemed like a better idea, and there were already a couple of cool projects using this approach (eg: webcam toy and glfx.js).</p>
+
+<p>So I decided to do something along those lines and started working on NumGL - a WebGL image / video processing library. Here&rsquo;s a couple of things you can do with it.</p>
+
+<h3 id="greyscaling">Greyscaling</h3>
+
+<p><img src="https://jongomez.github.io/media/numgl/grey.png" alt="Greyscale Image" /></p>
+
+<p>The NumGL code for this effect is:</p>
+
+<div class="highlight" style="background: #202020"><pre style="line-height: 125%;"><span></span><span style="color: #999999; font-style: italic">// &quot;image&quot; is the &lt;img&gt; tag ID.</span>
+<span style="color: #6ab825; font-weight: bold">var</span> <span style="color: #d0d0d0">imageId</span> <span style="color: #d0d0d0">=</span> <span style="color: #d0d0d0">numgl.store_picture(</span><span style="color: #ed9d13">&quot;image&quot;</span><span style="color: #d0d0d0">);</span>
+
+<span style="color: #d0d0d0">numgl.show_canvas(imageId)</span>
+<span style="color: #d0d0d0">numgl.grey(imageId);</span>
+<span style="color: #d0d0d0">numgl.do_it();</span>
+</pre></div>
+
+
+<p>To apply this or any of the following effects on video / webcam, simply change the <em>store_picture()</em> function to <em>store_video()</em> and <em>store_webcam()</em>, respectively. Fiddle around with this code here:</p>
+
+<ul>
+<li><a href="http://jsfiddle.net/jongomez/q3n5gj7u/">grey pic</a></li>
+<li><a href="http://jsfiddle.net/sputro0e/">grey video</a></li>
+<li><a href="https://jsfiddle.net/wm4gr6co/1/">grey webcam</a></li>
+</ul>
+
+<h3 id="convolution-kernel">Convolution kernel</h3>
+
+<p><img src="https://jongomez.github.io/media/numgl/conv.png" alt="Convolution Kernel" /></p>
+
+<p>Apply a convolution kernel to an image, video or webcam. The code is identical to the above example, just replace the numgl.grey() call with</p>
+
+<div class="highlight" style="background: #202020"><pre style="line-height: 125%;"><span></span><span style="color: #999999; font-style: italic">// Apply convolution kernel to the stored image.</span>
+<span style="color: #d0d0d0">numgl.convolution(imageId,</span> <span style="color: #d0d0d0">[-</span><span style="color: #3677a9">1</span><span style="color: #d0d0d0">,-</span><span style="color: #3677a9">1</span><span style="color: #d0d0d0">,-</span><span style="color: #3677a9">1</span><span style="color: #d0d0d0">,</span><span style="color: #3677a9">0</span><span style="color: #d0d0d0">,</span><span style="color: #3677a9">0</span><span style="color: #d0d0d0">,</span><span style="color: #3677a9">0</span><span style="color: #d0d0d0">,</span><span style="color: #3677a9">1</span><span style="color: #d0d0d0">,</span><span style="color: #3677a9">1</span><span style="color: #d0d0d0">,</span><span style="color: #3677a9">1</span><span style="color: #d0d0d0">]);</span>
+</pre></div>
+
+
+<p>where the array [-1,-1,-1,0,0,0,1,1,1] corresponds to the following kernel</p>
+
+$$\begin{bmatrix}-1 & -1 & -1\\0 & 0 & 0\\1 & 1 & 1\end{bmatrix}$$
+
+
+<p>JS Fiddle with it:</p>
+
+<ul>
+<li><a href="http://jsfiddle.net/jongomez/6pgbwkff/">pic</a></li>
+<li><a href="http://jsfiddle.net/m1gbshz6/">video</a></li>
+<li><a href="https://jsfiddle.net/rsn9cdkb/1/">webcam</a></li>
+</ul>
+
+<h3 id="thresholding">Thresholding</h3>
+
+<p><img src="https://jongomez.github.io/media/numgl/thresh.png" alt="Thresholding" /></p>
+
+<p>The function call is</p>
+
+<div class="highlight" style="background: #202020"><pre style="line-height: 125%;"><span></span><span style="color: #999999; font-style: italic">// Threshold the stored image.</span>
+<span style="color: #d0d0d0">numgl.threshold(imageId,</span> <span style="color: #3677a9">80</span><span style="color: #d0d0d0">);</span>
+</pre></div>
+
+
+<p>where 80 is the threshold value.
+JS Fiddles:</p>
+
+<ul>
+<li><a href="http://jsfiddle.net/jongomez/eap27rhq/">pic</a></li>
+<li><a href="http://jsfiddle.net/wuLcef2y/">video</a></li>
+<li><a href="https://jsfiddle.net/w8f7z6eu/">webcam</a></li>
+</ul>
+
+<h4 id="tl-dr">TL;DR</h4>
+
+<p>WebGL does image processing and computer vision stuff with ease and speed.
+NumGL is a WebGL image / video processing library. <a href="https://github.com/jongomez/numgl">Fork me on Github. Also check it out for additional docs and examples.</a></p>
+
+    </section>
+
+
+  <footer class="post-footer">
+
+
+    
+
+    
+
+
+
+
+
+<section class="author">
+  <h4><a href="https://jongomez.github.io/">Jon Gomez</a></h4>
+  
+  <p>Read <a href="https://jongomez.github.io/">more posts</a> by this author.</p>
+  
+  <div class="author-meta">
+    <span class="author-location icon-location">Portugal</span>
+    <span class="author-link icon-link"><a href="http://jongomez.github.io">http://jongomez.github.io</a></span>
+  </div>
+</section>
+
+
+
+    
+<section class="share">
+  <h4>Share this post</h4>
+  <a class="icon-twitter" style="font-size: 1.4em" href="https://twitter.com/share?text=Introducing%20NumGL&nbsp;-&nbsp;Jon%20Gomez%20Blog&amp;url=https%3a%2f%2fjongomez.github.io%2fpost%2fnumgl%2f"
+      onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+      <span class="hidden">Twitter</span>
+  </a>
+  <a class="icon-facebook" style="font-size: 1.4em" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fjongomez.github.io%2fpost%2fnumgl%2f"
+      onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+      <span class="hidden">Facebook</span>
+  </a>
+  <a class="icon-google-plus" style="font-size: 1.4em" href="https://plus.google.com/share?url=https%3a%2f%2fjongomez.github.io%2fpost%2fnumgl%2f"
+     onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+      <span class="hidden">Google+</span>
+  </a>
+</section>
+
+
+
+    
+
+<div id="disqus_thread" class="disqus_stuff"></div>
+<script type="text/javascript" class="disqus_stuff">
+  var disqus_shortname = 'jon-gomez-blog';
+  var disqus_url = 'https:\/\/jongomez.github.io\/post\/numgl\/';
+  (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.className = "disqus_stuff";
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+
+
+  </footer>
+
+</article>
+
+</main>
+    
+
+
+    <footer class="site-footer clearfix">
+        <section class="copyright"><a href="https://jongomez.github.io/">Jon Gomez Blog</a> </section>
+        
+    </footer>
+
+
+
+
+    </div>
+    <script type="text/javascript" src="https://jongomez.github.io/js/jquery.js"></script>
+    <script type="text/javascript" src="https://jongomez.github.io/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="https://jongomez.github.io/js/d3-ease.v1.min.js"></script>
+    <script type="text/javascript" src="https://jongomez.github.io/js/segment.js"></script>
+    <script type="text/javascript" src="https://jongomez.github.io/js/index.js"></script>
+
+
+    <script type="text/javascript"
+      src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+    
+</body>
+</html>
+

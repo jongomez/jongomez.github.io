@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Post-rsses on Jon Gomez Blog</title>
+    <link>https://jongomez.github.io/post/index.xml</link>
+    <description>Recent content in Post-rsses on Jon Gomez Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Thu, 15 Oct 2020 12:04:47 +0100</lastBuildDate>
+    <atom:link href="https://jongomez.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>ragdoll.js</title>
+      <link>https://jongomez.github.io/post/ragdolls/</link>
+      <pubDate>Thu, 15 Oct 2020 12:04:47 +0100</pubDate>
+      
+      <guid>https://jongomez.github.io/post/ragdolls/</guid>
+      <description>
+
+&lt;br/&gt;
+
+
+&lt;p&gt;In this post I&amp;rsquo;ll talk about some of the lessons I learned while making &lt;a href=&#34;https://github.com/jongomez/ragdoll.js&#34;&gt;ragdoll.js&lt;/a&gt;. But, before going any further, here&amp;rsquo;s an example of the lib in action:&lt;/p&gt;
+
+&lt;iframe src=&#34;https://playground.babylonjs.com/#40AH5S&#34; style=&#34;width: 100%; height: 550px;&#34;&gt;&lt;/iframe&gt;
+
+&lt;br/&gt;
+
+
+&lt;br/&gt;
+
+
+&lt;h4 id=&#34;joints-aren-t-really-that-complicated&#34;&gt;Joints aren&amp;rsquo;t really that complicated&lt;/h4&gt;
+
+&lt;p&gt;When I first looked at the &lt;a href=&#34;https://doc.babylonjs.com/how_to/joints&#34;&gt;BabylonJS Joints page&lt;/a&gt;, I got a bit scared. Some of the joints received arguments like&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;mainAxis: Vector3; the first axis.&lt;/li&gt;
+&lt;li&gt;connectedAxis: Vector3; the second axis.&lt;/li&gt;
+&lt;li&gt;mainPivot: Vector3; the pivot point for the main body.&lt;/li&gt;
+&lt;li&gt;connectedPivot: Vector3; the pivot point for the connected body, the negative of the connected body&amp;rsquo;s position.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;I mean&amp;hellip; I guess I understand some words. &lt;a href=&#34;https://doc.babylonjs.com/how_to/joint_pivots&#34;&gt;They have a great page explaining how to use these axes and points.&lt;/a&gt;. This helped. But still, they have aproximately 10 examples in that page&amp;hellip; and that&amp;rsquo;s only for the HingeJoint. There is a total of 8 joints in BabylonJS, I believe, and the same joint can behave differently according to the physics engine we&amp;rsquo;re using. This was a lot to take in, and at the time made a bit weary about using joints. Looking back though, there was no reason to be weary at all. The main things to remember are:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;The main pivot point is where the &amp;ldquo;joint&amp;rdquo; happens, i.e. the main rotation point.&lt;/li&gt;
+&lt;li&gt;The connected pivot point defines how far away the child mesh is from the main pivot point. It&amp;rsquo;s kinda like a rotation radius.&lt;/li&gt;
+&lt;li&gt;The mainAxis is usually equal to the connectedAxis, and defines how to the rotation happens: along the X, Y or Z axis.&lt;/li&gt;
+&lt;li&gt;Both of the main pivots and axes are defined in the parent mesh&amp;rsquo;s local coordinate system.&lt;/li&gt;
+&lt;li&gt;I&amp;rsquo;ve used the terms &amp;ldquo;parent mesh&amp;rdquo; and &amp;ldquo;child mesh&amp;rdquo; here. The parent mesh is the mesh with the impostor where .addJoint is called, for example: parentMesh.physicsImpostor.addJoint(childMesh.physicsImpostor, joint). I&amp;rsquo;ve also seen them refered to as &amp;ldquo;connected body/mesh&amp;rdquo; and &amp;ldquo;main body/mesh&amp;rdquo;, respectively.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&#34;don-t-be-afraid-to-look-at-the-babylonjs-source-code&#34;&gt;Don&amp;rsquo;t be afraid to look at the BabylonJS source code&lt;/h4&gt;
+
+&lt;p&gt;The BabylonJS main file has aproximately 150,000 lines of code. The code has a lot of mathematical operations that are a bit hard to read, stuff like quaternion operations, crazy matrix multiplications and so on. However, the code also has a lot functions that are fairly easy to understand, and can provide great insights on what BabylonJS is doing behind the scenes.&lt;/p&gt;
+
+&lt;p&gt;I used to have some issues navigating the source code. For example, if I wanted to find the bone&amp;rsquo;s getWorldMatrix() function, I would search for &amp;lsquo;getWorldMatrix&amp;rsquo;. This returns 100+ search results. What I do now is: when looking for a function, I&amp;rsquo;ll search for: &amp;lsquo;functionName =&amp;rsquo;. That &amp;lsquo; =&amp;rsquo; at the end makes all the difference. Searching for &amp;lsquo;getWorldMatrix =&amp;rsquo; yields only 7 results, making it much easier to find the function I&amp;rsquo;m looking for.&lt;/p&gt;
+
+&lt;h4 id=&#34;bones-local-axes&#34;&gt;Bones&amp;rsquo; local axes&lt;/h4&gt;
+
+&lt;p&gt;For some reason, I thought the bone&amp;rsquo;s local Y axis was always aligned with the bone direction (from head to tail&amp;hellip; let&amp;rsquo;s call this the bone&amp;rsquo;s natural direction). In all armatures. However, when I started configuring &lt;a href=&#34;https://playground.babylonjs.com/#WMJTNK&#34;&gt;the Dude model&lt;/a&gt;, I noticed the bone&amp;rsquo;s natural direction was aligned with the X axis, instead of the Y. Okay, so I thought every bone&amp;rsquo;s natural directions were aligned with either the X, Y or Z axis, depending on the armature. This was a wrong assumption as well, because once I started configuring &lt;a href=&#34;https://playground.babylonjs.com/#PVKQM1&#34;&gt;the Dummy model&lt;/a&gt;, I saw that the bone&amp;rsquo;s local axes were fixed, no matter the bone&amp;rsquo;s natural direction. So the lesson here was make no assumptions about the bone&amp;rsquo;s local axis. They vary from armature to armature&amp;hellip; and possibly from bone to bone, in the same armature.&lt;/p&gt;
+
+&lt;h4 id=&#34;add-subtract-rotations-with-quaternions&#34;&gt;Add/subtract rotations with quaternions&lt;/h4&gt;
+
+&lt;p&gt;I&amp;rsquo;ve gotten some serious headaches dealing with 3D rotations. Having said that, I found these two operations to be lifesavers:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Rotation addition by multiplying quaternions.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Rotation subtraction by multiplying by the quaternion inverse.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;I also found that working with quaternions, always in the world space, helped a lot. BabylonJS does this in some functions like syncImpostorWithBone.&lt;/p&gt;
+
+&lt;h4 id=&#34;default-joints-and-limits&#34;&gt;Default joints and limits&lt;/h4&gt;
+
+&lt;p&gt;When I started working on ragdolls, &lt;a href=&#34;https://www.babylonjs-playground.com/#8PQK71#2&#34;&gt;I found this playground with joints limits.&lt;/a&gt; They&amp;rsquo;re using a PointToPointJoint with a min and max limit. I thought &amp;ldquo;well, OimoJS seems to have PointToPointJoints, and these joints support limits&amp;rdquo;. Clearly, they&amp;rsquo;re working well on that playground. I believed this for like a week&amp;hellip; until I looked at the BabylonJS source code, and found out that OimoJS does not have point to point joints. How can this be? The physics engine doesn&amp;rsquo;t have these joints, and everything is working smoothly on the playground? Turns out, when an OimoJS joint doesn&amp;rsquo;t exist, BabylonJS defaults to using the HingeJoint. And that is in fact the joint we&amp;rsquo;re seeing on the playground. Which is one of the few joints that support limits (for OimoJS).&lt;/p&gt;
+
+&lt;p&gt;Joint limits are super important. They make configuring ragdolls much much easier. It&amp;rsquo;s a shame they only exist for some joints/physics engines.&lt;/p&gt;
+
+&lt;h4 id=&#34;some-ideas-that-didn-t-work&#34;&gt;Some ideas that didn&amp;rsquo;t work&lt;/h4&gt;
+
+&lt;p&gt;One of the ideas I had was: create a parent mesh in each of the bone&amp;rsquo;s origin point (let&amp;rsquo;s call it origin mesh), and create a joint between that mesh and the collider mesh that controlled the bone. Do this for every bone. In other words, a bone would act like an isolated system, containing only a joint between the origin mesh and the collider mesh. The final result was&amp;hellip; weird. Mainly because there was no joints between bones. Meaning, if I applied an impulse to the foot, it would stay in the foot. In real life, this impulse would propagate throught the legs, torso, and possibly through the head if strong enough.&lt;/p&gt;
+
+&lt;p&gt;Another idea that didn&amp;rsquo;t work was using BallAndSocket joints, but restricting the &amp;ldquo;twist&amp;rdquo; rotation of the collider meshes. We don&amp;rsquo;t want bones to twist 360 degrees, that would look painful. I tried to make this &amp;ldquo;twist&amp;rdquo; restriction, but couldn&amp;rsquo;t get it to work. Altough I think if I tried a bit harder I could probably make this work&amp;hellip; probably.&lt;/p&gt;
+
+&lt;p&gt;And that&amp;rsquo;s about it. I learned a bunch of other stuff, but these were the most memorable lessons.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Github User Page with Hugo</title>
+      <link>https://jongomez.github.io/post/hugo/</link>
+      <pubDate>Tue, 15 Nov 2016 12:04:47 +0100</pubDate>
+      
+      <guid>https://jongomez.github.io/post/hugo/</guid>
+      <description>
+
+&lt;br/&gt;
+
+
+&lt;p&gt;This approach involves serving both the Hugo working directory and the final build files. Some pros and cons of doing this:&lt;/p&gt;
+
+&lt;h3 id=&#34;pros&#34;&gt;Pros&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Easy setup and github flow (just the usual git add, commit, push. No need for .gitignores, branches, multiple repos, etc).&lt;/li&gt;
+&lt;li&gt;Both your working directory and build files are uploaded in the same github repo (some tutorials only upload the final build files).&lt;/li&gt;
+&lt;li&gt;The working directory serves as a pseudo development branch: you can add posts, change posts, do whatever you want in the working directory. Then, if you git add, commit, push your website, users will &lt;strong&gt;not&lt;/strong&gt; see what you did in the working directory. Users will only see changes when you build your website with the &amp;ldquo;hugo&amp;rdquo; command.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;cons&#34;&gt;Cons&lt;/h3&gt;
+
+&lt;p&gt;You&amp;rsquo;re basically uploading the website twice. This can be problematic if you have really large websites.&lt;/p&gt;
+
+&lt;h2 id=&#34;step-by-step&#34;&gt;Step by step&lt;/h2&gt;
+
+&lt;h3 id=&#34;1-install-hugo&#34;&gt;1. Install Hugo.&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://gohugo.io/overview/installing/&#34;&gt;How to install Hugo.&lt;/a&gt;
+Or, if you&amp;rsquo;re on Linux:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34; style=&#34;background: #202020&#34;&gt;&lt;pre style=&#34;line-height: 125%;&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;sudo&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;apt-get&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;install&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;hugo&lt;/span&gt; 
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id=&#34;2-set-up-your-github-page&#34;&gt;2. Set up your github page&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://pages.github.com/&#34;&gt;https://pages.github.com/&lt;/a&gt; - They make it really easy. Great job, Github.&lt;/p&gt;
+
+&lt;h3 id=&#34;3-create-your-working-directory&#34;&gt;3. Create your working directory&lt;/h3&gt;
+
+&lt;p&gt;Once you&amp;rsquo;re inside the github page directory, create a new directory. Name it whatever you want. &lt;a href=&#34;https://github.com/jongomez/jongomez.github.io&#34;&gt;Mine is called &amp;ldquo;hugo&amp;rdquo;.&lt;/a&gt; &lt;strong&gt;This is your working directory.&lt;/strong&gt; This is where you add themes, content, layouts, etc.&lt;/p&gt;
+
+&lt;h3 id=&#34;4-create-your-hugo-website&#34;&gt;4. Create your Hugo website&lt;/h3&gt;
+
+&lt;p&gt;Do this inside your working directory. &lt;a href=&#34;https://www.youtube.com/watch?time_continue=62&amp;amp;v=w7Ft2ymGmfc&#34;&gt;Create a Hugo website in under 2 minutes.&lt;/a&gt;&lt;a href=&#34;https://gohugo.io/themes/installing/&#34;&gt; Pick your theme.&lt;/a&gt; PROTIP: Don&amp;rsquo;t be too picky. They all look great.&lt;/p&gt;
+
+&lt;h3 id=&#34;5-change-your-build-path&#34;&gt;5. Change your build path&lt;/h3&gt;
+
+&lt;p&gt;Open up your Hugo config file (mine is called config.toml), and add the following line:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34; style=&#34;background: #202020&#34;&gt;&lt;pre style=&#34;line-height: 125%;&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;publishdir&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #ed9d13&#34;&gt;&amp;quot;..&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id=&#34;6-build-and-push-to-github&#34;&gt;6. Build and push to github&lt;/h3&gt;
+
+&lt;p&gt;Once inside your working directory, run the command &amp;ldquo;hugo&amp;rdquo; - this builds the website. If you followed Step 5, the website will be built on the parent directory AKA your github page directory.&lt;/p&gt;
+
+&lt;p&gt;After the website is built, change directory to your parent directory (cd ..) and perform the usual git stuff:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34; style=&#34;background: #202020&#34;&gt;&lt;pre style=&#34;line-height: 125%;&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;git&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;add&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;.&lt;/span&gt;
+&lt;span style=&#34;color: #d0d0d0&#34;&gt;git&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;commit&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;-m&lt;/span&gt; &lt;span style=&#34;color: #ed9d13&#34;&gt;&amp;quot;This is a message.&amp;quot;&lt;/span&gt;
+&lt;span style=&#34;color: #d0d0d0&#34;&gt;git&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;push&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;-u&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;origin&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;master&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id=&#34;the-end&#34;&gt;The end&lt;/h3&gt;
+
+&lt;p&gt;Hopefully you made it. If you didn&amp;rsquo;t, don&amp;rsquo;t give up. Because&amp;hellip;&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://i.ytimg.com/vi/jTIFSBlHzR8/maxresdefault.jpg&#34; /&gt;
+    
+    
+&lt;/figure&gt;
+
+</description>
+    </item>
+    
+    <item>
+      <title>inception.js</title>
+      <link>https://jongomez.github.io/post/inceptionjs/</link>
+      <pubDate>Fri, 14 Oct 2016 12:04:47 +0100</pubDate>
+      
+      <guid>https://jongomez.github.io/post/inceptionjs/</guid>
+      <description>
+
+&lt;br/&gt;
+
+
+&lt;p&gt;You can do a lot of crazy stuff with JavaScript. But can you re-render a website inside an iframe inside that same website? You know, something like this:&lt;/p&gt;
+
+&lt;p&gt;
+&lt;figure &gt;
+    &lt;a href=&#34;http://www.pxleyes.com/photoshop-picture/4db84f8644924/droste-effect-laptop.html&#34;&gt;
+        &lt;img src=&#34;https://jongomez.github.io/media/inceptionjs/example1.jpg&#34; /&gt;
+    &lt;/a&gt;
+    
+&lt;/figure&gt;
+
+&lt;p  class=&#34;legend&#34;&gt;
+
+Something like this, but with the current website inside the laptop. &lt;a href=&#34;http://www.pxleyes.com/photoshop-picture/4db84f8644924/droste-effect-laptop.html&#34;&gt;Photo Source.&lt;/a&gt;
+
+&lt;/p&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Don&amp;rsquo;t know why I thought of this, but the idea started to grow on me. I knew it could be done. I knew it would look trippy. So I decided to bring the idea to life.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;&amp;ldquo;What is the most resilient parasite? Bacteria? A virus? An intestinal worm? An idea. Resilient&amp;hellip; highly contagious. Once an idea has taken hold of the brain it&amp;rsquo;s almost impossible to eradicate. An idea that is fully formed - fully understood - that sticks; right in there somewhere.&amp;rdquo;&lt;/em&gt; &lt;strong&gt;- Cobb&lt;/strong&gt; &lt;em&gt;(Leonardo DiCaprio in Inception)&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Found out there&amp;rsquo;s a name for this kind of effect - &lt;a href=&#34;https://en.wikipedia.org/wiki/Droste_effect&#34;&gt;Droste effect.&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://jongomez.github.io/media/inceptionjs/Droste.jpg&#34; /&gt;
+    
+    
+&lt;/figure&gt;
+
+&lt;p  class=&#34;legend&#34;&gt;
+
+The Droste Effect.
+
+&lt;/p&gt;
+&lt;/p&gt;
+
+&lt;p&gt;How would one create such an effect using JavaScript? My first approach was to take a screenshot of the current website, and just put it on display inside the mockup photo. I tried out a few libraries that take screenshots of the current page &lt;a href=&#34;https://github.com/niklasvh/feedback.js&#34;&gt;(like this one)&lt;/a&gt;, but I could never get them to work 100%.&lt;/p&gt;
+
+&lt;p&gt;My next approach was to insert iframes inside the mockup photos. This turned out to be more feasible, and after working on this approach for a while I decided to turn it into a small JavaScript library - inception.js. Here&amp;rsquo;s a quick demo:&lt;/p&gt;
+
+&lt;h3 id=&#34;basic-example&#34;&gt;Basic example&lt;/h3&gt;
+
+&lt;p&gt;Lets say we have a container div, and want to insert the current page inside it. Using inception.js, all we need to do is:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34; style=&#34;background: #202020&#34;&gt;&lt;pre style=&#34;line-height: 125%;&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;inception1&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #6ab825; font-weight: bold&#34;&gt;new&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;Inception({&lt;/span&gt;
+  &lt;span style=&#34;color: #d0d0d0&#34;&gt;parentElementId:&lt;/span&gt; &lt;span style=&#34;color: #ed9d13&#34;&gt;&amp;quot;iframeContainer1&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;,&lt;/span&gt; 
+  &lt;span style=&#34;color: #d0d0d0&#34;&gt;levels:&lt;/span&gt; &lt;span style=&#34;color: #3677a9&#34;&gt;3&lt;/span&gt;
+&lt;span style=&#34;color: #d0d0d0&#34;&gt;})&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;And the result is:&lt;/p&gt;
+
+&lt;div id=&#34;iframeContainer1&#34; style=&#34;height:400px; border-style: solid; border-width: 8px;&#34;&gt;&lt;/div&gt;
+
+&lt;br/&gt;
+
+
+&lt;p&gt;&lt;a href=&#34;https://codepen.io/jonGomez/full/xROgqO/&#34;&gt;Check it out on Codepen.&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;That&amp;rsquo;s it. The number of nested iframes is set by the &amp;lsquo;levels&amp;rsquo; parameter.&lt;/p&gt;
+
+&lt;p&gt;Okay I lied. The code I used was little bit different. If you manage to scroll down inside those iframes, you&amp;rsquo;ll see there are no disqus comments at the end of the iframes. I didn&amp;rsquo;t include them because I always get nasty errors when using disqus stuff. I didn&amp;rsquo;t want those errors to occur again inside the iframes, so I removed all the disqus stuff from the iframes. To do this, I added a class called &lt;em&gt;&amp;ldquo;disqus_stuff&amp;rdquo;&lt;/em&gt; to all the disqus script elements, and added &lt;em&gt;&amp;lsquo;classesToRemove: &amp;ldquo;disqus_stuff&amp;rdquo;&amp;rsquo;&lt;/em&gt; to the Inception constructor call.&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34; style=&#34;background: #202020&#34;&gt;&lt;pre style=&#34;line-height: 125%;&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;inception1&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #6ab825; font-weight: bold&#34;&gt;new&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;Inception({&lt;/span&gt;
+  &lt;span style=&#34;color: #d0d0d0&#34;&gt;parentElementId:&lt;/span&gt; &lt;span style=&#34;color: #ed9d13&#34;&gt;&amp;quot;iframeContainer1&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;,&lt;/span&gt; 
+  &lt;span style=&#34;color: #d0d0d0&#34;&gt;levels:&lt;/span&gt; &lt;span style=&#34;color: #3677a9&#34;&gt;4&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;,&lt;/span&gt; 
+  &lt;span style=&#34;color: #d0d0d0&#34;&gt;classesToRemove:&lt;/span&gt; &lt;span style=&#34;color: #ed9d13&#34;&gt;&amp;quot;disqus_stuff&amp;quot;&lt;/span&gt;
+&lt;span style=&#34;color: #d0d0d0&#34;&gt;})&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;But that&amp;rsquo;s a pretty bare bones example. To recreate the droste effect in a mockup photo, we need a mockup photo, and some way to insert our iframes on top of that photo.&lt;/p&gt;
+
+&lt;p&gt;&lt;div&gt;&lt;img id=&#34;img1&#34; src=&#34;https://jongomez.github.io/media/inceptionjs/2.jpg&#34; style=&#34;width: 100%&#34;&gt;&lt;/div&gt;
+&lt;p  class=&#34;legend&#34;&gt;
+Mockup photo downloaded from &lt;a href=&#34;http://magicmockups.com/&#34;&gt;Magic Mockups&lt;/a&gt;
+&lt;/p&gt;
+&lt;/p&gt;
+
+&lt;p&gt;The code to recreate this example is&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34; style=&#34;background: #202020&#34;&gt;&lt;pre style=&#34;line-height: 125%;&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;inception2&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #6ab825; font-weight: bold&#34;&gt;new&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;Inception({&lt;/span&gt;
+  &lt;span style=&#34;color: #d0d0d0&#34;&gt;imageId:&lt;/span&gt; &lt;span style=&#34;color: #ed9d13&#34;&gt;&amp;quot;img1&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;,&lt;/span&gt; 
+  &lt;span style=&#34;color: #d0d0d0&#34;&gt;levels:&lt;/span&gt; &lt;span style=&#34;color: #3677a9&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;,&lt;/span&gt; 
+
+  &lt;span style=&#34;color: #d0d0d0&#34;&gt;width:&lt;/span&gt; &lt;span style=&#34;color: #ed9d13&#34;&gt;&amp;quot;60%&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;,&lt;/span&gt;
+  &lt;span style=&#34;color: #d0d0d0&#34;&gt;height:&lt;/span&gt; &lt;span style=&#34;color: #ed9d13&#34;&gt;&amp;quot;56%&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;,&lt;/span&gt;
+  &lt;span style=&#34;color: #d0d0d0&#34;&gt;top:&lt;/span&gt; &lt;span style=&#34;color: #ed9d13&#34;&gt;&amp;quot;25%&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;,&lt;/span&gt;
+  &lt;span style=&#34;color: #d0d0d0&#34;&gt;left:&lt;/span&gt; &lt;span style=&#34;color: #ed9d13&#34;&gt;&amp;quot;10%&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;,&lt;/span&gt;
+  &lt;span style=&#34;color: #d0d0d0&#34;&gt;rotate:&lt;/span&gt; &lt;span style=&#34;color: #ed9d13&#34;&gt;&amp;quot;5deg&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;,&lt;/span&gt;
+
+  &lt;span style=&#34;color: #d0d0d0&#34;&gt;classesToRemove:&lt;/span&gt; &lt;span style=&#34;color: #ed9d13&#34;&gt;&amp;quot;disqus_stuff&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;,&lt;/span&gt;
+  &lt;span style=&#34;color: #d0d0d0&#34;&gt;matchWidthElementId:&lt;/span&gt; &lt;span style=&#34;color: #ed9d13&#34;&gt;&amp;quot;img1&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;,&lt;/span&gt;
+  &lt;span style=&#34;color: #d0d0d0&#34;&gt;leftAlignWith:&lt;/span&gt; &lt;span style=&#34;color: #ed9d13&#34;&gt;&amp;quot;img1&amp;quot;&lt;/span&gt;
+&lt;span style=&#34;color: #d0d0d0&#34;&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;a href=&#34;https://codepen.io/jonGomez/full/xRgRQa&#34;&gt;Check it out on Codepen.&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;The only difficult part here is getting the width, height, top, left and rotate values for things to work (i.e. positioning the iframes inside the mockup image). &lt;a href=&#34;http://codepen.io/jonGomez/full/YGOdPE/&#34;&gt;But don&amp;rsquo;t worry, I got you covered. I made a codepen where you can get all the necessary values to set everything up.&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;What if the screen on the mockup image is tilted in a weird way? Or the screen is not directly facing forward? &lt;a href=&#34;http://franklinta.com/2014/09/08/computing-css-matrix3d-transforms/&#34;&gt;Franklin Ta has already solved that problem for us.&lt;/a&gt; He used matrix3d transforms to place anything inside such screens.&lt;/p&gt;
+
+&lt;p&gt;Theoretically, you could always use a matrix3d to place anything on top of mockup images (instead of specifying width, rotation, etc&amp;hellip;), but I&amp;rsquo;d reccomend against using matrix3d&amp;rsquo;s if you can. Code will look cleaner, it&amp;rsquo;s easier to set up correctly, and in my experience, the browser has a hard time computing matrix3d transforms.&lt;/p&gt;
+
+&lt;p&gt;Here&amp;rsquo;s and example with matrix3d:
+&lt;div id=&#34;great-grandparent&#34;&gt;&lt;img id=&#34;img2&#34; src=&#34;https://jongomez.github.io/media/inceptionjs/3.jpg&#34;&gt;&lt;/div&gt;
+&lt;p  class=&#34;legend&#34;&gt;
+Mockup photo downloaded from &lt;a href=&#34;http://magicmockups.com/&#34;&gt;Magic Mockups&lt;/a&gt;
+&lt;/p&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Code:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34; style=&#34;background: #202020&#34;&gt;&lt;pre style=&#34;line-height: 125%;&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;inception3&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #6ab825; font-weight: bold&#34;&gt;new&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;Inception({&lt;/span&gt;
+  &lt;span style=&#34;color: #d0d0d0&#34;&gt;imageId:&lt;/span&gt; &lt;span style=&#34;color: #ed9d13&#34;&gt;&amp;quot;img2&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;,&lt;/span&gt; 
+  &lt;span style=&#34;color: #d0d0d0&#34;&gt;levels:&lt;/span&gt; &lt;span style=&#34;color: #3677a9&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;,&lt;/span&gt; 
+
+  &lt;span style=&#34;color: #d0d0d0&#34;&gt;matrix3d:&lt;/span&gt; &lt;span style=&#34;color: #ed9d13&#34;&gt;&amp;quot;matrix3d(0.326055, ...)&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;,&lt;/span&gt;
+  &lt;span style=&#34;color: #d0d0d0&#34;&gt;imageWidth:&lt;/span&gt; &lt;span style=&#34;color: #ed9d13&#34;&gt;&amp;quot;960px&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;,&lt;/span&gt;
+  &lt;span style=&#34;color: #d0d0d0&#34;&gt;imageHeight:&lt;/span&gt; &lt;span style=&#34;color: #ed9d13&#34;&gt;&amp;quot;640px&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;,&lt;/span&gt;
+
+  &lt;span style=&#34;color: #d0d0d0&#34;&gt;classesToRemove:&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;[&lt;/span&gt;&lt;span style=&#34;color: #ed9d13&#34;&gt;&amp;quot;disqus_stuff&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color: #ed9d13&#34;&gt;&amp;quot;nav&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;],&lt;/span&gt;
+  &lt;span style=&#34;color: #d0d0d0&#34;&gt;matchWidthElementId:&lt;/span&gt; &lt;span style=&#34;color: #ed9d13&#34;&gt;&amp;quot;img2&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;,&lt;/span&gt;
+  &lt;span style=&#34;color: #d0d0d0&#34;&gt;leftAlignWith:&lt;/span&gt; &lt;span style=&#34;color: #ed9d13&#34;&gt;&amp;quot;img2&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;,&lt;/span&gt;
+&lt;span style=&#34;color: #d0d0d0&#34;&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;a href=&#34;https://codepen.io/jonGomez/full/WoRRep/&#34;&gt;Codepen.&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Again, the hard part here is getting the correct matrix3d values for your mockup image. &lt;a href=&#34;http://codepen.io/jonGomez/full/yaRgjG&#34;&gt;I&amp;rsquo;ve forked Franklin Ta&amp;rsquo;s codepen and modified it slightly to facilitate usage with mockup images.&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Finally, I&amp;rsquo;d like to say that getting this to run on every page can be a real challenge. Certain things will not work. For example, 3D translations may screw up the z-index of some elements, and certain elements inside the iframes will not render (on Chrome, Firefox works fine?). Not only that, I haven&amp;rsquo;t done anything to optimize the code. It&amp;rsquo;s a mess. Seriously. If you open Chrome&amp;rsquo;s dev console and run an audit you&amp;rsquo;ll see what I mean.&lt;/p&gt;
+
+&lt;p&gt;Looks pretty tight though. &lt;a href=&#34;https://github.com/jongomez/inception.js&#34;&gt;More on Github.&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Introducing NumGL</title>
+      <link>https://jongomez.github.io/post/numgl/</link>
+      <pubDate>Wed, 21 Jan 2015 12:08:47 +0100</pubDate>
+      
+      <guid>https://jongomez.github.io/post/numgl/</guid>
+      <description>
+
+&lt;br/&gt;
+
+
+&lt;p&gt;(2 minute read)&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;If you&amp;rsquo;re looking for general-purpose computing with WebGL (specifically BLAS stuff) check out the amazing &lt;a href=&#34;https://github.com/waylonflinn/weblas&#34;&gt;weblas&lt;/a&gt; library. This post is a bit old, and at the time using WebGL for general-purpose computing seemed like a painful dirty hack.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;WebGL for general-purpose computing sounded like a good idea at first.
+Simply send data to the GPU as textures and perform the calculations there.
+Browsers can handle it, and very few people seemed to be doing this.&lt;/p&gt;
+
+&lt;p&gt;Turns out people weren&amp;rsquo;t doing this for several reasons, the main one being: weak support for float texture values. There&amp;rsquo;s an extension called &lt;em&gt;oes_texture_float&lt;/em&gt;, which helps a lot, &lt;a href=&#34;http://stackoverflow.com/questions/17476632/webgl-extension-support-across-browsers&#34;&gt;but it&amp;rsquo;s still a bit clumsy.&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;So if you&amp;rsquo;re not using &lt;em&gt;oes_texture_float&lt;/em&gt; and want to to send float data to the shaders, the data has to be RGBA-encoded into a texture (on the JavaScript side), sent to the WebGL side and once there, decoded back into floats. Ouch.
+Not to mention reading back the float results on the JS side, &lt;a href=&#34;http://stackoverflow.com/questions/17981163/webgl-read-pixels-from-floating-point-render-target&#34;&gt;which can also be painful.&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://lab.concord.org/experiments/webgl-gpgpu/webgl.html&#34;&gt;Here&amp;rsquo;s an overview of 2 methods that do all of the above.&lt;/a&gt; Some issues are: performance bottlenecks, additional JavaScript and GLSL code, and errors associated with the float / RGBA conversions.&lt;/p&gt;
+
+&lt;p&gt;What about image processing and computer vision? The images / video frames can be processed by WebGL as regular textures, no need for float / RGBA conversions. It seemed like a better idea, and there were already a couple of cool projects using this approach (eg: webcam toy and glfx.js).&lt;/p&gt;
+
+&lt;p&gt;So I decided to do something along those lines and started working on NumGL - a WebGL image / video processing library. Here&amp;rsquo;s a couple of things you can do with it.&lt;/p&gt;
+
+&lt;h3 id=&#34;greyscaling&#34;&gt;Greyscaling&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://jongomez.github.io/media/numgl/grey.png&#34; alt=&#34;Greyscale Image&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The NumGL code for this effect is:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34; style=&#34;background: #202020&#34;&gt;&lt;pre style=&#34;line-height: 125%;&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #999999; font-style: italic&#34;&gt;// &amp;quot;image&amp;quot; is the &amp;lt;img&amp;gt; tag ID.&lt;/span&gt;
+&lt;span style=&#34;color: #6ab825; font-weight: bold&#34;&gt;var&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;imageId&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;numgl.store_picture(&lt;/span&gt;&lt;span style=&#34;color: #ed9d13&#34;&gt;&amp;quot;image&amp;quot;&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;);&lt;/span&gt;
+
+&lt;span style=&#34;color: #d0d0d0&#34;&gt;numgl.show_canvas(imageId)&lt;/span&gt;
+&lt;span style=&#34;color: #d0d0d0&#34;&gt;numgl.grey(imageId);&lt;/span&gt;
+&lt;span style=&#34;color: #d0d0d0&#34;&gt;numgl.do_it();&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;To apply this or any of the following effects on video / webcam, simply change the &lt;em&gt;store_picture()&lt;/em&gt; function to &lt;em&gt;store_video()&lt;/em&gt; and &lt;em&gt;store_webcam()&lt;/em&gt;, respectively. Fiddle around with this code here:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://jsfiddle.net/jongomez/q3n5gj7u/&#34;&gt;grey pic&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://jsfiddle.net/sputro0e/&#34;&gt;grey video&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://jsfiddle.net/wm4gr6co/1/&#34;&gt;grey webcam&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;convolution-kernel&#34;&gt;Convolution kernel&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://jongomez.github.io/media/numgl/conv.png&#34; alt=&#34;Convolution Kernel&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Apply a convolution kernel to an image, video or webcam. The code is identical to the above example, just replace the numgl.grey() call with&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34; style=&#34;background: #202020&#34;&gt;&lt;pre style=&#34;line-height: 125%;&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #999999; font-style: italic&#34;&gt;// Apply convolution kernel to the stored image.&lt;/span&gt;
+&lt;span style=&#34;color: #d0d0d0&#34;&gt;numgl.convolution(imageId,&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;[-&lt;/span&gt;&lt;span style=&#34;color: #3677a9&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;,-&lt;/span&gt;&lt;span style=&#34;color: #3677a9&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;,-&lt;/span&gt;&lt;span style=&#34;color: #3677a9&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;,&lt;/span&gt;&lt;span style=&#34;color: #3677a9&#34;&gt;0&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;,&lt;/span&gt;&lt;span style=&#34;color: #3677a9&#34;&gt;0&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;,&lt;/span&gt;&lt;span style=&#34;color: #3677a9&#34;&gt;0&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;,&lt;/span&gt;&lt;span style=&#34;color: #3677a9&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;,&lt;/span&gt;&lt;span style=&#34;color: #3677a9&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;,&lt;/span&gt;&lt;span style=&#34;color: #3677a9&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;]);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;where the array [-1,-1,-1,0,0,0,1,1,1] corresponds to the following kernel&lt;/p&gt;
+
+$$\begin{bmatrix}-1 &amp; -1 &amp; -1\\0 &amp; 0 &amp; 0\\1 &amp; 1 &amp; 1\end{bmatrix}$$
+
+
+&lt;p&gt;JS Fiddle with it:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://jsfiddle.net/jongomez/6pgbwkff/&#34;&gt;pic&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://jsfiddle.net/m1gbshz6/&#34;&gt;video&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://jsfiddle.net/rsn9cdkb/1/&#34;&gt;webcam&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;thresholding&#34;&gt;Thresholding&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&#34;https://jongomez.github.io/media/numgl/thresh.png&#34; alt=&#34;Thresholding&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The function call is&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34; style=&#34;background: #202020&#34;&gt;&lt;pre style=&#34;line-height: 125%;&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #999999; font-style: italic&#34;&gt;// Threshold the stored image.&lt;/span&gt;
+&lt;span style=&#34;color: #d0d0d0&#34;&gt;numgl.threshold(imageId,&lt;/span&gt; &lt;span style=&#34;color: #3677a9&#34;&gt;80&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;where 80 is the threshold value.
+JS Fiddles:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://jsfiddle.net/jongomez/eap27rhq/&#34;&gt;pic&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://jsfiddle.net/wuLcef2y/&#34;&gt;video&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://jsfiddle.net/w8f7z6eu/&#34;&gt;webcam&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&#34;tl-dr&#34;&gt;TL;DR&lt;/h4&gt;
+
+&lt;p&gt;WebGL does image processing and computer vision stuff with ease and speed.
+NumGL is a WebGL image / video processing library. &lt;a href=&#34;https://github.com/jongomez/numgl&#34;&gt;Fork me on Github. Also check it out for additional docs and examples.&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Jon Gomez Blog</title>
+    <link>https://jongomez.github.io/tags/hugo/index.xml</link>
+    <description>Recent content on Jon Gomez Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <atom:link href="https://jongomez.github.io/tags/hugo/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Github User Page with Hugo</title>
+      <link>https://jongomez.github.io/post/hugo/</link>
+      <pubDate>Tue, 15 Nov 2016 12:04:47 +0100</pubDate>
+      
+      <guid>https://jongomez.github.io/post/hugo/</guid>
+      <description>
+
+&lt;br/&gt;
+
+
+&lt;p&gt;This approach involves serving both the Hugo working directory and the final build files. Some pros and cons of doing this:&lt;/p&gt;
+
+&lt;h3 id=&#34;pros&#34;&gt;Pros&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Easy setup and github flow (just the usual git add, commit, push. No need for .gitignores, branches, multiple repos, etc).&lt;/li&gt;
+&lt;li&gt;Both your working directory and build files are uploaded in the same github repo (some tutorials only upload the final build files).&lt;/li&gt;
+&lt;li&gt;The working directory serves as a pseudo development branch: you can add posts, change posts, do whatever you want in the working directory. Then, if you git add, commit, push your website, users will &lt;strong&gt;not&lt;/strong&gt; see what you did in the working directory. Users will only see changes when you build your website with the &amp;ldquo;hugo&amp;rdquo; command.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;cons&#34;&gt;Cons&lt;/h3&gt;
+
+&lt;p&gt;You&amp;rsquo;re basically uploading the website twice. This can be problematic if you have really large websites.&lt;/p&gt;
+
+&lt;h2 id=&#34;step-by-step&#34;&gt;Step by step&lt;/h2&gt;
+
+&lt;h3 id=&#34;1-install-hugo&#34;&gt;1. Install Hugo.&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://gohugo.io/overview/installing/&#34;&gt;How to install Hugo.&lt;/a&gt;
+Or, if you&amp;rsquo;re on Linux:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34; style=&#34;background: #202020&#34;&gt;&lt;pre style=&#34;line-height: 125%;&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;sudo&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;apt-get&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;install&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;hugo&lt;/span&gt; 
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id=&#34;2-set-up-your-github-page&#34;&gt;2. Set up your github page&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://pages.github.com/&#34;&gt;https://pages.github.com/&lt;/a&gt; - They make it really easy. Great job, Github.&lt;/p&gt;
+
+&lt;h3 id=&#34;3-create-your-working-directory&#34;&gt;3. Create your working directory&lt;/h3&gt;
+
+&lt;p&gt;Once you&amp;rsquo;re inside the github page directory, create a new directory. Name it whatever you want. &lt;a href=&#34;https://github.com/jongomez/jongomez.github.io&#34;&gt;Mine is called &amp;ldquo;hugo&amp;rdquo;.&lt;/a&gt; &lt;strong&gt;This is your working directory.&lt;/strong&gt; This is where you add themes, content, layouts, etc.&lt;/p&gt;
+
+&lt;h3 id=&#34;4-create-your-hugo-website&#34;&gt;4. Create your Hugo website&lt;/h3&gt;
+
+&lt;p&gt;Do this inside your working directory. &lt;a href=&#34;https://www.youtube.com/watch?time_continue=62&amp;amp;v=w7Ft2ymGmfc&#34;&gt;Create a Hugo website in under 2 minutes.&lt;/a&gt;&lt;a href=&#34;https://gohugo.io/themes/installing/&#34;&gt; Pick your theme.&lt;/a&gt; PROTIP: Don&amp;rsquo;t be too picky. They all look great.&lt;/p&gt;
+
+&lt;h3 id=&#34;5-change-your-build-path&#34;&gt;5. Change your build path&lt;/h3&gt;
+
+&lt;p&gt;Open up your Hugo config file (mine is called config.toml), and add the following line:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34; style=&#34;background: #202020&#34;&gt;&lt;pre style=&#34;line-height: 125%;&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;publishdir&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color: #ed9d13&#34;&gt;&amp;quot;..&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id=&#34;6-build-and-push-to-github&#34;&gt;6. Build and push to github&lt;/h3&gt;
+
+&lt;p&gt;Once inside your working directory, run the command &amp;ldquo;hugo&amp;rdquo; - this builds the website. If you followed Step 5, the website will be built on the parent directory AKA your github page directory.&lt;/p&gt;
+
+&lt;p&gt;After the website is built, change directory to your parent directory (cd ..) and perform the usual git stuff:&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34; style=&#34;background: #202020&#34;&gt;&lt;pre style=&#34;line-height: 125%;&#34;&gt;&lt;span&gt;&lt;/span&gt;&lt;span style=&#34;color: #d0d0d0&#34;&gt;git&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;add&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;.&lt;/span&gt;
+&lt;span style=&#34;color: #d0d0d0&#34;&gt;git&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;commit&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;-m&lt;/span&gt; &lt;span style=&#34;color: #ed9d13&#34;&gt;&amp;quot;This is a message.&amp;quot;&lt;/span&gt;
+&lt;span style=&#34;color: #d0d0d0&#34;&gt;git&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;push&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;-u&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;origin&lt;/span&gt; &lt;span style=&#34;color: #d0d0d0&#34;&gt;master&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3 id=&#34;the-end&#34;&gt;The end&lt;/h3&gt;
+
+&lt;p&gt;Hopefully you made it. If you didn&amp;rsquo;t, don&amp;rsquo;t give up. Because&amp;hellip;&lt;/p&gt;
+
+
+&lt;figure &gt;
+    
+        &lt;img src=&#34;https://i.ytimg.com/vi/jTIFSBlHzR8/maxresdefault.jpg&#34; /&gt;
+    
+    
+&lt;/figure&gt;
+
+</description>
+    </item>
+    
+  </channel>
+</rss>

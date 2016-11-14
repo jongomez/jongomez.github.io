@@ -1,0 +1,75 @@
+baseurl = "https://jongomez.github.io/"
+title = "Jon Gomez Blog"
+theme = "hugo-theme-casper"
+publishdir = ".."
+
+
+paginate = 5
+
+DisqusShortname = "jon-gomez-blog"
+
+Copyright = ""
+canonifyurls = true
+
+pygmentsCodefences = true
+pygmentsCodefencesGuessSyntax = true
+pygmentsStyle = "native"
+
+# pygmentsstyle = "manni"
+# pygmentsstyle = "igor"
+# pygmentsstyle = "xcode"
+# pygmentsstyle = "vim"
+# pygmentsstyle = "autumn"
+# pygmentsstyle = "vs"
+# pygmentsstyle = "rrt"
+# pygmentsstyle = "native"
+# pygmentsstyle = "perldoc"
+# pygmentsstyle = "borland"
+# pygmentsstyle = "tango"
+# pygmentsstyle = "emacs"
+# pygmentsstyle = "friendly"
+# pygmentsstyle = "monokai"
+# pygmentsstyle = "paraiso-dark"
+# pygmentsstyle = "colorful"
+# pygmentsstyle = "murphy"
+# pygmentsstyle = "bw"
+# pygmentsstyle = "pastie"
+# pygmentsstyle = "paraiso-light"
+# pygmentsstyle = "trac"
+# pygmentsstyle = "default"
+# pygmentsstyle = "fruity"
+
+[params]
+  menucolor = "white"
+  photosourcetext = "(Photo by Jake Moore)"
+  photosourcehref = "http://www.jakesblog.co.uk/2012/03/wave-photos-2011.html"
+  photosourcecolor = "#585858"
+
+
+  description = "Blog"
+  
+
+  cover = "media/wave.jpg"
+  author = "Jon Gomez"
+  authorlocation = "Portugal"
+  authorwebsite = "http://jongomez.github.io"
+  googleAnalyticsUserID = "UA-83420808-1"
+  githubName = "jongomez"
+  #twitterName = ""
+  # facebookName = ""
+  # linkedinName = ""
+  # set true if you are not proud of using Hugo (true will hide the footer note "Proudly published with HUGO.....")
+  hideHUGOSupport = true
+
+[[menu.main]]
+  name = "Blog"
+  weight = -120
+  identifier = "blog"
+  url = "/"
+
+[[menu.main]]
+  name = "Github"
+  weight = -110
+  identifier = "github"
+  url = "https://github.com/jongomez"
+

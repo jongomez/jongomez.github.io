@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+
+  <html lang="">
+
+<head>
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  	<meta property="og:title" content=" Github User Page with Hugo &middot;  Jon Gomez Blog" />
+  	<meta property="og:site_name" content="Jon Gomez Blog" />
+  	<meta property="og:url" content="https://jongomez.github.io/post/hugo/" />
+
+    
+  	<meta property="og:type" content="article" />
+
+    <meta property="og:article:published_time" content="2016-11-15T12:04:47&#43;01:00" />
+
+    
+    <meta property="og:article:tag" content="Hugo" />
+    
+    
+
+  <title>
+     Github User Page with Hugo &middot;  Jon Gomez Blog
+  </title>
+
+    <meta name="description" content="Blog" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+
+
+    <link rel="stylesheet" type="text/css" href="https://jongomez.github.io/css/screen.css" />
+    <link rel="stylesheet" type="text/css" href="https://jongomez.github.io/css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400|Inconsolata" />
+
+
+    
+      
+          <link href="https://jongomez.github.io/index.xml" rel="alternate" type="application/rss+xml" title="Jon Gomez Blog" />
+      
+      
+    
+    <meta name="generator" content="Hugo 0.17" />
+
+    <link rel="canonical" href="https://jongomez.github.io/post/hugo/" />
+
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-83420808-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+    
+
+    
+</head>
+<body class="nav-closed">
+
+  <div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" id="nav-close" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+        
+        
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://jongomez.github.io/">Blog</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://github.com/jongomez">Github</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="https://jongomez.github.io/about/">About</a>
+            </li>
+        
+    </ul>
+</div>
+<span class="nav-cover"></span>
+
+
+ <div class="site-wrapper">
+
+
+
+
+  
+    
+      <header class="main-header post-head" style="background-image: url(https://jongomez.github.io/media/hugo/hugologo.png)">
+    
+  
+  <nav class="main-nav overlay clearfix">
+
+
+  
+          
+          <div id="menu-icon-wrapper" class="menu-icon-wrapper">
+              
+              <svg width="100px" height="100px">
+                  <path stroke="white" id="pathA" d="M 30 40 L 70 40 C 90 40 90 75 60 85 A 40 40 0 0 1 20 20 L 80 80"/>
+                  <path stroke="white" id="pathB" d="M 30 50 L 70 50"/>
+                  <path stroke="white" id="pathC" d="M 70 60 L 30 60 C 10 60 10 20 40 15 A 40 38 0 1 1 20 80 L 80 20"/>
+              </svg>
+              
+              <button id="menu-icon-trigger" class="menu-icon-trigger"></button>
+          </div>
+  
+  </nav>
+
+
+ <div class="vertical">
+        <div class="main-header-content inner">
+
+
+  <h1 class="page-title"></h1>
+  <h2 class="page-description"></h2>
+
+
+
+
+      </div>
+  </div>
+
+
+    <a id="sauss" style="color: " href="">
+      
+    </a>
+
+</header>
+
+
+
+<main class="content" role="main">
+
+
+  <article class="post post">
+
+    <header class="post-header">
+
+        <h1 class="post-title">Github User Page with Hugo</h1>
+
+
+        <small></small>
+
+        <section class="post-meta">
+        
+          <time class="post-date" datetime="2016-11-15T12:04:47&#43;01:00">
+            Nov 15, 2016
+          </time>
+        
+         
+          <span class="post-tag small"><a href="https://jongomez.github.io/tags/hugo/">#Hugo</a></span>
+         
+        </section>
+    </header>
+
+    <section class="post-content">
+      
+
+<br/>
+
+
+<p>This approach involves serving both the Hugo working directory and the final build files. Some pros and cons of doing this:</p>
+
+<h3 id="pros">Pros</h3>
+
+<ul>
+<li>Easy setup and github flow (just the usual git add, commit, push. No need for .gitignores, branches, multiple repos, etc).</li>
+<li>Both your working directory and build files are uploaded in the same github repo (some tutorials only upload the final build files).</li>
+<li>The working directory serves as a pseudo development branch: you can add posts, change posts, do whatever you want in the working directory. Then, if you git add, commit, push your website, users will <strong>not</strong> see what you did in the working directory. Users will only see changes when you build your website with the &ldquo;hugo&rdquo; command.</li>
+</ul>
+
+<h3 id="cons">Cons</h3>
+
+<p>You&rsquo;re basically uploading the website twice. This can be problematic if you have really large websites.</p>
+
+<h2 id="step-by-step">Step by step</h2>
+
+<h3 id="1-install-hugo">1. Install Hugo.</h3>
+
+<p><a href="https://gohugo.io/overview/installing/">How to install Hugo.</a>
+Or, if you&rsquo;re on Linux:</p>
+
+<div class="highlight" style="background: #202020"><pre style="line-height: 125%;"><span></span><span style="color: #d0d0d0">sudo</span> <span style="color: #d0d0d0">apt-get</span> <span style="color: #d0d0d0">install</span> <span style="color: #d0d0d0">hugo</span> 
+</pre></div>
+
+
+<h3 id="2-set-up-your-github-page">2. Set up your github page</h3>
+
+<p><a href="https://pages.github.com/">https://pages.github.com/</a> - They make it really easy. Great job, Github.</p>
+
+<h3 id="3-create-your-working-directory">3. Create your working directory</h3>
+
+<p>Once you&rsquo;re inside the github page directory, create a new directory. Name it whatever you want. <a href="https://github.com/jongomez/jongomez.github.io">Mine is called &ldquo;hugo&rdquo;.</a> <strong>This is your working directory.</strong> This is where you add themes, content, layouts, etc.</p>
+
+<h3 id="4-create-your-hugo-website">4. Create your Hugo website</h3>
+
+<p>Do this inside your working directory. <a href="https://www.youtube.com/watch?time_continue=62&amp;v=w7Ft2ymGmfc">Create a Hugo website in under 2 minutes.</a><a href="https://gohugo.io/themes/installing/"> Pick your theme.</a> PROTIP: Don&rsquo;t be too picky. They all look great.</p>
+
+<h3 id="5-change-your-build-path">5. Change your build path</h3>
+
+<p>Open up your Hugo config file (mine is called config.toml), and add the following line:</p>
+
+<div class="highlight" style="background: #202020"><pre style="line-height: 125%;"><span></span><span style="color: #d0d0d0">publishdir</span> <span style="color: #d0d0d0">=</span> <span style="color: #ed9d13">&quot;..&quot;</span>
+</pre></div>
+
+
+<h3 id="6-build-and-push-to-github">6. Build and push to github</h3>
+
+<p>Once inside your working directory, run the command &ldquo;hugo&rdquo; - this builds the website. If you followed Step 5, the website will be built on the parent directory AKA your github page directory.</p>
+
+<p>After the website is built, change directory to your parent directory (cd ..) and perform the usual git stuff:</p>
+
+<div class="highlight" style="background: #202020"><pre style="line-height: 125%;"><span></span><span style="color: #d0d0d0">git</span> <span style="color: #d0d0d0">add</span> <span style="color: #d0d0d0">.</span>
+<span style="color: #d0d0d0">git</span> <span style="color: #d0d0d0">commit</span> <span style="color: #d0d0d0">-m</span> <span style="color: #ed9d13">&quot;This is a message.&quot;</span>
+<span style="color: #d0d0d0">git</span> <span style="color: #d0d0d0">push</span> <span style="color: #d0d0d0">-u</span> <span style="color: #d0d0d0">origin</span> <span style="color: #d0d0d0">master</span>
+</pre></div>
+
+
+<h3 id="the-end">The end</h3>
+
+<p>Hopefully you made it. If you didn&rsquo;t, don&rsquo;t give up. Because&hellip;</p>
+
+
+<figure >
+    
+        <img src="https://i.ytimg.com/vi/jTIFSBlHzR8/maxresdefault.jpg" />
+    
+    
+</figure>
+
+
+    </section>
+
+
+  <footer class="post-footer">
+
+
+    
+
+    
+
+
+
+
+
+<section class="author">
+  <h4><a href="https://jongomez.github.io/">Jon Gomez</a></h4>
+  
+  <p>Read <a href="https://jongomez.github.io/">more posts</a> by this author.</p>
+  
+  <div class="author-meta">
+    <span class="author-location icon-location">Portugal</span>
+    <span class="author-link icon-link"><a href="http://jongomez.github.io">http://jongomez.github.io</a></span>
+  </div>
+</section>
+
+
+
+    
+<section class="share">
+  <h4>Share this post</h4>
+  <a class="icon-twitter" style="font-size: 1.4em" href="https://twitter.com/share?text=Github%20User%20Page%20with%20Hugo&nbsp;-&nbsp;Jon%20Gomez%20Blog&amp;url=https%3a%2f%2fjongomez.github.io%2fpost%2fhugo%2f"
+      onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+      <span class="hidden">Twitter</span>
+  </a>
+  <a class="icon-facebook" style="font-size: 1.4em" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fjongomez.github.io%2fpost%2fhugo%2f"
+      onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+      <span class="hidden">Facebook</span>
+  </a>
+  <a class="icon-google-plus" style="font-size: 1.4em" href="https://plus.google.com/share?url=https%3a%2f%2fjongomez.github.io%2fpost%2fhugo%2f"
+     onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+      <span class="hidden">Google+</span>
+  </a>
+</section>
+
+
+
+    
+
+<div id="disqus_thread" class="disqus_stuff"></div>
+<script type="text/javascript" class="disqus_stuff">
+  var disqus_shortname = 'jon-gomez-blog';
+  var disqus_url = 'https:\/\/jongomez.github.io\/post\/hugo\/';
+  (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.className = "disqus_stuff";
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+
+
+  </footer>
+
+</article>
+
+</main>
+    
+
+
+    <footer class="site-footer clearfix">
+        <section class="copyright"><a href="https://jongomez.github.io/">Jon Gomez Blog</a> </section>
+        
+    </footer>
+
+
+
+
+    </div>
+    <script type="text/javascript" src="https://jongomez.github.io/js/jquery.js"></script>
+    <script type="text/javascript" src="https://jongomez.github.io/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="https://jongomez.github.io/js/d3-ease.v1.min.js"></script>
+    <script type="text/javascript" src="https://jongomez.github.io/js/segment.js"></script>
+    <script type="text/javascript" src="https://jongomez.github.io/js/index.js"></script>
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+    
+</body>
+</html>
+
