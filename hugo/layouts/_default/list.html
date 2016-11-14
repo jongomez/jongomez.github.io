@@ -1,0 +1,64 @@
+{{ partial "header.html" . }}
+{{ $baseurl := .Site.BaseURL }}
+
+{{if .Params.cover}}
+	{{if or (eq (substr .Params.cover 0 7) "http://") (eq (substr .Params.cover 0 8) "https://")}}
+  <header class="main-header tag-head" style="background-image: url({{.Params.cover}})">
+  {{ else }}
+  <header class="main-header tag-head" style="background-image: url({{ $baseurl }}{{.Params.cover}})">
+  {{ end }}
+{{else if .Site.Params.cover}}
+	 {{if or (eq (substr .Site.Params.cover 0 7) "http://") (eq (substr .Site.Params.cover 0 8) "https://")}}
+  <header class="main-header tag-head" style="background-image: url({{.Site.Params.cover}})">
+  {{ else }}
+  <header class="main-header tag-head" style="background-image: url({{ $baseurl }}{{.Site.Params.cover}})">
+  {{ end }}
+{{else}}
+	<header class="main-header tag-head no-cover">
+{{end}}
+    <nav class="main-nav overlay clearfix">
+        {{ if .Site.Menus.main }}
+
+          <!-- Wrapper -->
+          <div id="menu-icon-wrapper" class="menu-icon-wrapper">
+              <!-- SVG element with paths -->
+              <svg width="100px" height="100px">
+                  <path stroke="{{.Site.Params.menucolor}}" id="pathA" d="M 30 40 L 70 40 C 90 40 90 75 60 85 A 40 40 0 0 1 20 20 L 80 80"/>
+                  <path stroke="{{.Site.Params.menucolor}}" id="pathB" d="M 30 50 L 70 50"/>
+                  <path stroke="{{.Site.Params.menucolor}}" id="pathC" d="M 70 60 L 30 60 C 10 60 10 20 40 15 A 40 38 0 1 1 20 80 L 80 20"/>
+              </svg>
+              <!-- Trigger to perform the animations -->
+              <button id="menu-icon-trigger" class="menu-icon-trigger"></button>
+          </div>
+
+        {{end}}
+    </nav>
+    <div class="vertical">
+        <div class="main-header-content inner">
+            <h1 class="page-title">{{.Title}}</h1>
+            <h2 class="page-description">
+                {{if .Params.description}}
+                    {{.Params.description}}
+                {{end}}
+            </h2>
+        </div>
+    </div>
+</header>
+
+<main class="content" role="main">
+    {{ $paginator := .Paginator }}
+
+	<div class="extra-pagination inner">
+    {{ partial "pagination.html" $paginator }}
+	</div>
+
+	{{ range $index, $page := $paginator.Pages }}
+	   {{ partial "li.html" . }}
+	{{ end }}
+
+	{{ partial "pagination.html" $paginator }}
+</main>
+
+
+
+{{ partial "footer.html" . }}

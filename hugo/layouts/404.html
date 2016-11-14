@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+{{ if .Params.onehundredpercent}}
+  <!-- Used only for the aboud page. If the about page doesn't have this, the lateral menu animation freaks out. -->
+  <html lang="{{.Site.LanguageCode}}" style="height: 100%">
+{{ else }}
+  <html lang="{{.Site.LanguageCode}}">
+{{ end }}
+<head>
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <meta property="og:title" content="{{ if ne .URL "/" }} {{ .Title }} &middot; {{ end }} {{ .Site.Title }}" />
+    <meta property="og:site_name" content="{{ .Site.Title }}" />
+    <meta property="og:url" content="{{ .Permalink }}" />
+
+    {{ if .IsPage }}
+    <meta property="og:type" content="article" />
+
+    <meta property="og:article:published_time" content="{{ .Date.Format "2006-01-02T15:04:05Z07:00" | safeHTML }}" />
+
+    {{ range .Params.tags }}
+    <meta property="og:article:tag" content="{{ . }}" />
+    {{ end }}
+    {{ else }}
+    <meta property="og:type" content="website" />
+    {{ end }}
+
+  <title>
+    {{ if ne .URL "/" }} {{ .Title }} &middot; {{ end }} {{ .Site.Title }}
+  </title>
+
+    <meta name="description" content="{{ .Site.Params.description }}" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<!--
+    <link rel="shortcut icon" href="{{.Site.BaseURL}}images/favicon.ico">
+    <link rel="apple-touch-icon" href="{{.Site.BaseURL}}images/apple-touch-icon.png" />
+-->
+
+    <link rel="stylesheet" type="text/css" href="{{.Site.BaseURL}}css/screen.css" />
+    <link rel="stylesheet" type="text/css" href="{{.Site.BaseURL}}css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400|Inconsolata" />
+
+
+    {{ if .Site.Params.RSSLink}}
+        <link href="{{.Site.Params.RSSLink }}" rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}" />
+    {{else}}
+      {{ if ne .URL "/" }}
+          <link href="{{ .Site.BaseURL }}index.xml" rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}" />
+      {{ end }}
+      {{if .IsNode}}
+        <link href="{{.RSSLink}}" rel="alternate" type="application/rss+xml" title="{{ if ne .URL "/" }}{{ .Title }} &middot; {{ end }}{{ .Site.Title }}" />
+      {{end}}
+    {{end}}
+    {{.Hugo.Generator}}
+
+    <link rel="canonical" href="{{ .Permalink }}" />
+
+    {{with  .Site.Params.googleAnalyticsUserID }}
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', '{{.}}', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+    {{end}}
+
+    {{ if .Site.Params.customHeaderPartial }}
+        {{ partial .Site.Params.customHeaderPartial . }}
+    {{ end }}
+</head>
+<body class="nav-closed">
+
+  {{ partial "navigation.html" . }}
+
+<div class="site-wrapper" style="margin: 0px;">
+
+{{if .Site.Params.cover}}
+<header class="main-header " style="background-size: cover;background-image: url({{.Site.BaseURL}}{{.Site.Params.cover}}); margin: 0px; height: 100vh;">
+{{else}}
+<header class="main-header no-cover">
+{{end}}
+    <nav class="main-nav overlay clearfix">
+        {{ if .Site.Menus.main }}
+
+          <!-- Wrapper -->
+          <div id="menu-icon-wrapper" class="menu-icon-wrapper">
+              <!-- SVG element with paths -->
+              <svg width="100px" height="100px">
+                  <path stroke="{{.Site.Params.menucolor}}" id="pathA" d="M 30 40 L 70 40 C 90 40 90 75 60 85 A 40 40 0 0 1 20 20 L 80 80"/>
+                  <path stroke="{{.Site.Params.menucolor}}" id="pathB" d="M 30 50 L 70 50"/>
+                  <path stroke="{{.Site.Params.menucolor}}" id="pathC" d="M 70 60 L 30 60 C 10 60 10 20 40 15 A 40 38 0 1 1 20 80 L 80 20"/>
+              </svg>
+              <!-- Trigger to perform the animations -->
+              <button id="menu-icon-trigger" class="menu-icon-trigger"></button>
+          </div>
+
+        {{end}}
+    </nav>
+    <div class="vertical">
+        <div class="main-header-content inner">
+
+            <h1 class="page-title">404 Page Not Found</h1>
+            <h2 class="page-description"><a style="color: white" href="/">Back to home</a></h2>
+        </div>
+    </div>
+
+    <a id="sauss" style="color: {{ .Site.Params.photosourcecolor }}" href="{{ .Site.Params.photosourcehref }}">
+      {{ .Site.Params.photosourcetext }}
+    </a>
+
+</header>
+
+    <script type="text/javascript" src="{{.Site.BaseURL}}js/jquery.js"></script>
+    <script type="text/javascript" src="{{.Site.BaseURL}}js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="{{.Site.BaseURL}}js/d3-ease.v1.min.js"></script>
+    <script type="text/javascript" src="{{.Site.BaseURL}}js/segment.js"></script>
+    <script type="text/javascript" src="{{.Site.BaseURL}}js/index.js"></script>
+
+</div>

@@ -1,0 +1,159 @@
+{{ partial "header.html" . }}
+
+{{if .Site.Params.cover}}
+{{if or (eq (substr .Site.Params.cover 0 7) "http://") (eq (substr .Site.Params.cover 0 8) "https://")}}
+  <header class="main-header" style="background-image: url({{.Site.Params.cover}})">
+  {{ else }}
+  <header class="main-header" style="background-image: url({{.Site.BaseURL}}{{.Site.Params.cover}})">
+  {{ end }}
+{{else}}
+<header class="main-header no-cover">
+{{end}}
+
+    <nav class="main-nav overlay clearfix">
+        {{ if .Site.Menus.main }}
+
+          <!-- Wrapper -->
+          <div id="menu-icon-wrapper" class="menu-icon-wrapper">
+              <!-- SVG element with paths -->
+              <svg width="100px" height="100px">
+                  <path stroke="{{.Site.Params.menucolor}}" id="pathA" d="M 30 40 L 70 40 C 90 40 90 75 60 85 A 40 40 0 0 1 20 20 L 80 80"/>
+                  <path stroke="{{.Site.Params.menucolor}}" id="pathB" d="M 30 50 L 70 50"/>
+                  <path stroke="{{.Site.Params.menucolor}}" id="pathC" d="M 70 60 L 30 60 C 10 60 10 20 40 15 A 40 38 0 1 1 20 80 L 80 20"/>
+              </svg>
+              <!-- Trigger to perform the animations -->
+              <button id="menu-icon-trigger" class="menu-icon-trigger"></button>
+          </div>
+
+        {{end}}
+    </nav>
+    <div class="vertical">
+        <div class="main-header-content inner">
+      
+          <div class="logos" id="logos">
+    
+            {{ if .Site.Params.linkedinName }}
+                <a class="bloglogo" href="https://www.linkedin.com/in/{{ .Site.Params.linkedinName }}" target="_blank">
+                    <span class="icon-linkedin" style="color:white;font-size:2em"></span>
+                </a>
+            &nbsp;
+            {{end}}
+            {{ if .Site.Params.githubName }}
+                <a class="bloglogo" href="https://github.com/{{ .Site.Params.githubName }}" target="_blank">
+                <span class="icon-github" style="color:white;font-size:2em"></span>
+                </a>
+            &nbsp;
+            {{end}}
+            {{ if .Site.Params.twitterName }}
+                <a class="bloglogo" href="https://twitter.com/{{ .Site.Params.twitterName }}" target="_blank">
+                    <span class="icon-twitter" style="color:white;font-size:2em"></span>
+                </a>
+            &nbsp;
+            {{end}}
+            {{ if .Site.Params.facebookName }}
+                <a class="bloglogo" href="https://www.facebook.com/{{ .Site.Params.facebookName }}" target="_blank">
+                    <span class="icon-facebook" style="color:white;font-size:2em"></span>
+                </a>
+            &nbsp;
+            {{end}}
+            {{ if .Site.Params.instagramName }}
+                <a class="bloglogo" href="https://instagram.com/{{ .Site.Params.instagramName }}" target="_blank">
+                    <span class="icon-instagram" style="color:white;font-size:2em"></span>
+                </a>
+            &nbsp;
+            {{end}}
+            {{ if .Site.Params.pinterestName }}
+                <a class="bloglogo" href="https://www.pinterest.com/{{ .Site.Params.pinterestName }}" target="_blank">
+                    <span class="icon-pinterest" style="color:white;font-size:2em"></span>
+                </a>
+            &nbsp;
+            {{end}}
+            {{ if .Site.Params.googlePlusName }}
+                <a class="bloglogo" href="https://google.com/+{{ .Site.Params.googlePlusName }}" target="_blank">
+                    <span class="icon-google-plus" style="color:white;font-size:2em"></span>
+                </a>
+            &nbsp;
+            {{end}}
+          </div>
+
+            <div id="animated-letters"></div>
+            <h2 class="page-description" id="description">{{ .Site.Params.description }}</h2>
+<!--
+            <h1 class="page-title">{{ .Site.Title }}</h1>
+-->
+
+        </div>
+    </div>
+    <a class="scroll-down icon-arrow-left" href="#content"><span class="hidden">Scroll Down</span></a>
+
+
+    <a id="sauss" style="color: {{ .Site.Params.photosourcecolor }}" href="{{ .Site.Params.photosourcehref }}">
+      {{ .Site.Params.photosourcetext }}
+    </a>
+</header>
+
+
+<main id="content" class="content" role="main">
+
+    {{ range .Data.Pages }}
+        {{if eq .Type "index" }}
+        <div class="index-content post">
+        {{.Content}}
+        </div>
+        {{end}}
+    {{ end }}
+
+    {{ if not ($.Scratch.Get "paginatedSections") }}
+        {{ if isset .Site.Params "paginatedSections" }}
+            {{ $.Scratch.Set "paginatedSections" .Site.Params.paginatedSections }}
+        {{ else }}
+            {{ $.Scratch.Set "paginatedSections" "post" }}
+        {{ end }}
+    {{ end }}
+
+    {{ $list := where .Data.Pages "Section" "in" ($.Scratch.Get "paginatedSections") }}
+    {{ $list := where $list "Section" "!=" "" }}
+    {{ $paginator := .Paginate ( $list ) }}
+
+    <div class="extra-pagination inner">
+        {{ partial "pagination.html" $paginator }}
+    </div>
+
+    {{ range $index, $page := $paginator.Pages }}
+        {{ partial "li.html" . }}
+    {{ end }}
+
+    {{ partial "pagination.html" $paginator }}
+
+</main>
+    
+    <!-- Only the index.html page needs the following script. -->
+    <script type="text/javascript" src="{{.Site.BaseURL}}js/letters.js"></script>
+    <script type="text/javascript" src="{{.Site.BaseURL}}js/devtools-detect.js"></script>
+
+    <script> 
+
+    var devToolsOpen = false
+    
+    if(window.self == window.top) {
+    window.top.addEventListener('devtoolschange', function (e) {
+      if(!devToolsOpen) {
+        devToolsOpen = true;
+        var audio = new Audio('/media/MNIJ.mp3');
+        audio.play();
+        
+        //console.log("OPEN!")
+      } else {
+        // Uncomment bellow to allow playing everytime user opens console.
+        //devToolsOpen = false;
+      }
+    });
+    }
+
+    </script>
+
+{{ partial "footer.html" . }}
+
+
+
+
