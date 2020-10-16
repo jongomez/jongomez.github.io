@@ -64,9 +64,9 @@ The BabylonJS main file has aproximately 150,000 lines of code. The code has a l
 
 I used to have some issues navigating the source code. For example, if I wanted to find the bone's getWorldMatrix() function, I would search for 'getWorldMatrix'. This returns 100+ search results. What I do now is: when looking for a function, I'll search for: 'functionName ='. That ' =' at the end makes all the difference. Searching for 'getWorldMatrix =' yields only 7 results, making it much easier to find the function I'm looking for.
 
-#### Bones' local axis
+#### Bones' local axes
 
-For some reason, I thought the bone's local Y axis was always aligned with the bone direction (from head to tail... let's call this the bone's natural direction). In all armatures. However, when I started configuring [the Dude model](https://playground.babylonjs.com/#WMJTNK), I noticed bone's natural direction was aligned with the X axis, instead of the Y. Okay, so I thought that bone's natural direction may be aligned with the X, Y or Z axis, depending on the armature. This was a wrong assumption as well, because once I started configuring [the Dummy model](https://playground.babylonjs.com/#PVKQM1), I saw that the bone's local axes were fixed, no matter the bone's natural direction. So the lesson here was make no assumptions about the bone's local axis. They vary from armature to armature... and possibly from bone to bone, in the same armature. 
+For some reason, I thought the bone's local Y axis was always aligned with the bone direction (from head to tail... let's call this the bone's natural direction). In all armatures. However, when I started configuring [the Dude model](https://playground.babylonjs.com/#WMJTNK), I noticed the bone's natural direction was aligned with the X axis, instead of the Y. Okay, so I thought every bone's natural directions were aligned with either the X, Y or Z axis, depending on the armature. This was a wrong assumption as well, because once I started configuring [the Dummy model](https://playground.babylonjs.com/#PVKQM1), I saw that the bone's local axes were fixed, no matter the bone's natural direction. So the lesson here was make no assumptions about the bone's local axis. They vary from armature to armature... and possibly from bone to bone, in the same armature. 
 
 #### Add/subtract rotations with quaternions
 
