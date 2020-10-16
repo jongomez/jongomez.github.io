@@ -62,7 +62,7 @@ numgl.do_it();
 To apply this or any of the following effects on video / webcam, simply change the *store_picture()* function to *store_video()* and *store_webcam()*, respectively. Fiddle around with this code here:
 
 * [grey pic](http://jsfiddle.net/jongomez/q3n5gj7u/)
-* [grey video](http://jsfiddle.net/zycpufjn/)
+* [grey video](http://jsfiddle.net/sputro0e/)
 * [grey webcam](https://jsfiddle.net/wm4gr6co/1/)
 
 ### Convolution kernel
@@ -82,7 +82,7 @@ where the array [-1,-1,-1,0,0,0,1,1,1] corresponds to the following kernel
 JS Fiddle with it: 
 
 * [pic](http://jsfiddle.net/jongomez/6pgbwkff/)
-* [video](http://jsfiddle.net/3t9r82Lh/)
+* [video](http://jsfiddle.net/m1gbshz6/)
 * [webcam](https://jsfiddle.net/rsn9cdkb/1/)
 
 ### Thresholding
@@ -99,7 +99,7 @@ where 80 is the threshold value.
 JS Fiddles:
 
 * [pic](http://jsfiddle.net/jongomez/eap27rhq/)
-* [video](http://jsfiddle.net/r846matL/)
+* [video](http://jsfiddle.net/wuLcef2y/)
 * [webcam](https://jsfiddle.net/w8f7z6eu/)
 
 #### TL;DR
